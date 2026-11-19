@@ -1,0 +1,17 @@
+export type ServiceItem = {
+    id: number;
+    name: string;
+    description: string | null;
+    duration_minutes: number;
+    buffer_after_minutes: number;
+    price: string;
+    price_formatted: string;
+    is_active: boolean;
+    staff_profile_ids?: number[];
+};
+
+export type StaffOption = {
+    id: number;
+    name: string;
+    color: string;
+};

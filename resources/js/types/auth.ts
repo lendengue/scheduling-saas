@@ -18,6 +18,7 @@ export type Auth = {
     role: Role | null;
     can: {
         manageTeam: boolean;
+        manageServices: boolean;
     };
 };
 
