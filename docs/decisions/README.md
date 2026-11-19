@@ -12,6 +12,9 @@ to change a decision, write a new ADR that supersedes the old one.
 | [0004](0004-vue-starter-kit-baseline.md) | Official Vue starter kit as the application baseline | Accepted |
 | [0005](0005-local-environment.md) | Local environment with Laravel Sail | Accepted |
 | [0006](0006-testing-and-ci.md) | Testing strategy and CI pipeline | Accepted |
+| [0007](0007-tenant-routing-and-cross-domain-login.md) | Tenant routing, sessions and cross-domain login | Accepted |
+| [0008](0008-tenant-context-in-queued-work.md) | Tenant context in queued work | Accepted |
+| [0009](0009-roles-and-invitations.md) | Roles and team invitations | Accepted |
 
 ## Template
 
