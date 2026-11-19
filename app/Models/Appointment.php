@@ -6,6 +6,7 @@ use App\Enums\AppointmentStatus;
 use App\Models\Concerns\BelongsToTenant;
 use App\Models\Concerns\UsesTimestampTz;
 use App\Observers\FlushAvailabilityCache;
+use App\Support\SecureToken;
 use Carbon\CarbonImmutable;
 use Database\Factories\AppointmentFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -108,6 +109,14 @@ class Appointment extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * Whether the plain token from a management link opens this appointment.
+     */
+    public function matchesManageToken(string $plainToken): bool
+    {
+        return $plainToken !== '' && SecureToken::matches($plainToken, $this->manage_token_hash);
     }
 
     /**

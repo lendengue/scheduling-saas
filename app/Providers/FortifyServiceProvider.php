@@ -90,5 +90,13 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perHour(10)->by($request->ip());
         });
 
+        RateLimiter::for('public-booking', function (Request $request) {
+            return Limit::perHour((int) config('scheduling.public_bookings_per_hour'))->by($request->ip());
+        });
+
+        RateLimiter::for('public-availability', function (Request $request) {
+            return Limit::perMinute(120)->by($request->ip());
+        });
+
     }
 }

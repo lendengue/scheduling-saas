@@ -18,8 +18,8 @@ test('members can visit the dashboard', function () {
         ->assertOk();
 });
 
-test('the tenant root redirects to the panel', function () {
+test('the tenant root opens the public booking page', function () {
     $tenant = Tenant::factory()->create();
 
-    $this->get($tenant->url('/'))->assertRedirect(tenantRoute($tenant, 'dashboard'));
+    $this->get($tenant->url('/'))->assertRedirect(tenantRoute($tenant, 'booking.show'));
 });

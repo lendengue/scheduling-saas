@@ -10,13 +10,13 @@ use Inertia\Response;
 class HomeController extends Controller
 {
     /**
-     * Landing page on the central domain; the panel on a tenant subdomain.
-     * (The public booking page takes over the tenant root in Phase 2.)
+     * Landing page on the central domain; the public booking page on a
+     * tenant subdomain (the team reaches the panel at /app).
      */
     public function __invoke(CurrentTenant $currentTenant): Response|RedirectResponse
     {
         if ($currentTenant->check()) {
-            return redirect()->route('dashboard');
+            return redirect()->route('booking.show');
         }
 
         return Inertia::render('Welcome');

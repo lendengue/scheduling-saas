@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Booking\AppointmentCalendarController;
+use App\Http\Controllers\Booking\AvailabilityController;
+use App\Http\Controllers\Booking\BookingController;
+use App\Http\Controllers\Booking\BookingPageController;
 use App\Http\Controllers\Tenant\AcceptInvitationController;
 use App\Http\Controllers\Tenant\InvitationController;
 use App\Http\Controllers\Tenant\LoginHandoffController;
@@ -16,6 +20,24 @@ use Illuminate\Support\Facades\Route;
 | Tenant Routes ({slug}.{APP_DOMAIN})
 |--------------------------------------------------------------------------
 */
+
+/*
+| Public booking (no login): customers book, then manage their appointment
+| through the secret link they receive.
+*/
+
+Route::get('book', BookingPageController::class)->name('booking.show');
+Route::middleware('throttle:public-availability')->group(function () {
+    Route::get('book/availability/days', [AvailabilityController::class, 'days'])->name('booking.availability.days');
+    Route::get('book/availability/slots', [AvailabilityController::class, 'slots'])->name('booking.availability.slots');
+});
+Route::post('book', [BookingController::class, 'store'])
+    ->middleware('throttle:public-booking')
+    ->name('booking.store');
+Route::get('book/confirmed/{appointment}', [BookingController::class, 'confirmed'])->name('booking.confirmed');
+Route::get('appointments/{appointment}/calendar.ics', AppointmentCalendarController::class)
+    ->middleware('throttle:30,1')
+    ->name('booking.calendar');
 
 Route::get('auth/handoff/{token}', LoginHandoffController::class)
     ->middleware('throttle:10,1')
