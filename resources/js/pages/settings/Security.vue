@@ -10,7 +10,7 @@ import { edit } from '@/routes/security';
 import type { Props as ManageTwoFactorProps } from '@/components/ManageTwoFactor.vue';
 import ManageTwoFactor from '@/components/ManageTwoFactor.vue';
 
-// oxfmt-ignore
+// prettier-ignore
 type Props = {
     passwordRules: string;
 } &
@@ -110,5 +110,4 @@ defineOptions({
         :requiresConfirmation="requiresConfirmation"
         :twoFactorEnabled="twoFactorEnabled"
     />
-
 </template>
