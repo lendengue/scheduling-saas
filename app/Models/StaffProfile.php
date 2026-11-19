@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
+use App\Observers\FlushAvailabilityCache;
 use Database\Factories\StaffProfileFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -33,6 +35,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, WorkingHour> $workingHours
  * @property-read Collection<int, TimeOff> $timeOffs
  */
+#[ObservedBy(FlushAvailabilityCache::class)]
 #[Fillable(['bio', 'color', 'is_bookable'])]
 class StaffProfile extends Model
 {

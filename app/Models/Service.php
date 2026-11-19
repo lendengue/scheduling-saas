@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
+use App\Observers\FlushAvailabilityCache;
 use Database\Factories\ServiceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -35,6 +37,7 @@ use Illuminate\Support\Carbon;
  * @property-read Tenant $tenant
  * @property-read Collection<int, StaffProfile> $staffProfiles
  */
+#[ObservedBy(FlushAvailabilityCache::class)]
 #[Fillable(['name', 'description', 'duration_minutes', 'buffer_after_minutes', 'price_cents', 'is_active'])]
 class Service extends Model
 {

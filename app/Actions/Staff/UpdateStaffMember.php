@@ -4,6 +4,7 @@ namespace App\Actions\Staff;
 
 use App\Enums\Role;
 use App\Models\StaffProfile;
+use App\Services\Availability\AvailabilityCache;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -12,6 +13,8 @@ use InvalidArgumentException;
  */
 class UpdateStaffMember
 {
+    public function __construct(private readonly AvailabilityCache $cache) {}
+
     /**
      * @param  array{bio: string|null, color: string, is_bookable: bool}  $attributes
      * @param  list<int>  $serviceIds
@@ -31,6 +34,7 @@ class UpdateStaffMember
 
             $profile->update($attributes);
             $profile->services()->sync($serviceIds);
+            $this->cache->flush($profile->tenant_id);
 
             return $profile;
         });

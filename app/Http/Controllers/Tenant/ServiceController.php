@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Actions\Services\CreateService;
 use App\Actions\Services\ReorderServices;
+use App\Actions\Services\UpdateService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Services\ReorderServicesRequest;
 use App\Http\Requests\Services\ServiceRequest;
@@ -49,18 +50,16 @@ class ServiceController extends Controller
 
     public function store(ServiceRequest $request, CreateService $create): RedirectResponse
     {
-        $service = $create->handle($request->serviceAttributes());
-        $service->staffProfiles()->sync($request->staffProfileIds());
+        $service = $create->handle($request->serviceAttributes(), $request->staffProfileIds());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __(':name created.', ['name' => $service->name])]);
 
         return back();
     }
 
-    public function update(ServiceRequest $request, Service $service): RedirectResponse
+    public function update(ServiceRequest $request, Service $service, UpdateService $update): RedirectResponse
     {
-        $service->update($request->serviceAttributes());
-        $service->staffProfiles()->sync($request->staffProfileIds());
+        $update->handle($service, $request->serviceAttributes(), $request->staffProfileIds());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __(':name updated.', ['name' => $service->name])]);
 

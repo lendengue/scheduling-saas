@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToTenant;
+use App\Models\Concerns\UsesTimestampTz;
+use App\Observers\FlushAvailabilityCache;
 use Carbon\CarbonImmutable;
 use Database\Factories\TimeOffFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,11 +29,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonImmutable|null $updated_at
  * @property-read StaffProfile $staffProfile
  */
+#[ObservedBy(FlushAvailabilityCache::class)]
 #[Fillable(['staff_profile_id', 'starts_at', 'ends_at', 'reason'])]
 class TimeOff extends Model
 {
     /** @use HasFactory<TimeOffFactory> */
-    use BelongsToTenant, HasFactory;
+    use BelongsToTenant, HasFactory, UsesTimestampTz;
 
     /**
      * Get the attributes that should be cast.
@@ -61,6 +65,6 @@ class TimeOff extends Model
     #[Scope]
     protected function overlapping(Builder $query, CarbonImmutable $from, CarbonImmutable $to): void
     {
-        $query->where('starts_at', '<', $to)->where('ends_at', '>', $from);
+        $query->where('starts_at', '<', $to->utc())->where('ends_at', '>', $from->utc());
     }
 }

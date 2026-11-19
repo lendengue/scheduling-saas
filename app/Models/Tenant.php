@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Data\Tenants\BookingSettings;
 use App\Models\Scopes\TenantScope;
 use App\Support\Tenancy\TenantDomain;
 use Database\Factories\TenantFactory;
@@ -59,19 +60,18 @@ class Tenant extends Model
     }
 
     /**
-     * Default public booking rules (see the booking settings page).
+     * Default public booking rules.
      *
      * @return array<string, int|bool>
      */
     public static function defaultBookingSettings(): array
     {
-        return [
-            'slot_interval' => 15,
-            'min_notice_minutes' => 120,
-            'max_advance_days' => 60,
-            'cancellation_notice_hours' => 24,
-            'requires_approval' => false,
-        ];
+        return (new BookingSettings)->toArray();
+    }
+
+    public function bookingSettings(): BookingSettings
+    {
+        return BookingSettings::fromArray($this->booking_settings);
     }
 
     /**

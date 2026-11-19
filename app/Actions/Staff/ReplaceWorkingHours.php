@@ -3,6 +3,7 @@
 namespace App\Actions\Staff;
 
 use App\Models\StaffProfile;
+use App\Services\Availability\AvailabilityCache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\DB;
  */
 class ReplaceWorkingHours
 {
+    public function __construct(private readonly AvailabilityCache $cache) {}
+
     /**
      * @param  list<array{weekday: int, starts_at: string, ends_at: string}>  $intervals
      */
@@ -19,5 +22,7 @@ class ReplaceWorkingHours
             $profile->workingHours()->delete();
             $profile->workingHours()->createMany($intervals);
         });
+
+        $this->cache->flush($profile->tenant_id);
     }
 }
