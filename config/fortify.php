@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'home' => '/dashboard',
+    'home' => '/app',
 
     /*
     |--------------------------------------------------------------------------
@@ -144,7 +144,6 @@ return [
     */
 
     'features' => [
-        Features::registration(),
         Features::resetPasswords(),
         Features::twoFactorAuthentication([
             'confirm' => true,

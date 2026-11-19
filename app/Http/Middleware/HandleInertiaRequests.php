@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\Role;
+use App\Support\CurrentTenant;
+use App\Support\Tenancy\TenantDomain;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,11 +38,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $tenant = app(CurrentTenant::class)->get();
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'centralUrl' => TenantDomain::centralUrl(),
+            'appDomain' => TenantDomain::central(),
+            'tenant' => $tenant === null ? null : [
+                'name' => $tenant->name,
+                'slug' => $tenant->slug,
+            ],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+                'role' => $user?->tenantRole()?->value,
+                'can' => [
+                    'manageTeam' => $user?->hasTenantRole(Role::Owner, Role::Admin) ?? false,
+                ],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

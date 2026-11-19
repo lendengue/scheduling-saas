@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, usePage } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -8,7 +8,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
@@ -18,6 +17,9 @@ defineOptions({
         description: 'Enter your email and password below to log in',
     },
 });
+
+const page = usePage();
+const centralLoginUrl = `${page.props.centralUrl}/login`;
 
 defineProps<{
     status?: string;
@@ -100,8 +102,13 @@ defineProps<{
         </div>
 
         <div class="text-center text-sm text-muted-foreground">
-            Don't have an account?
-            <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+            Not {{ page.props.tenant?.name }}?
+            <a
+                :href="centralLoginUrl"
+                class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                :tabindex="6"
+                >Find your workspace</a
+            >
         </div>
     </Form>
 </template>

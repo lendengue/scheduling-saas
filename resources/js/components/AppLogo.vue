@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 
-const name = usePage().props.name;
+const page = usePage();
+const name = computed(() => page.props.tenant?.name ?? page.props.name);
 </script>
 
 <template>

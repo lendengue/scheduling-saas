@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tenant;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
@@ -9,9 +10,11 @@ beforeEach(function () {
 });
 
 test('two factor challenge redirects to login when not authenticated', function () {
-    $response = $this->get(route('two-factor.login'));
+    $tenant = Tenant::factory()->create();
 
-    $response->assertRedirect(route('login'));
+    $response = $this->get(tenantRoute($tenant, 'two-factor.login'));
+
+    $response->assertRedirect(tenantRoute($tenant, 'login'));
 });
 
 test('two factor challenge can be rendered', function () {
@@ -22,12 +25,12 @@ test('two factor challenge can be rendered', function () {
 
     $user = User::factory()->withTwoFactor()->create();
 
-    $this->post(route('login'), [
+    $this->post(tenantRoute($user, 'login'), [
         'email' => $user->email,
         'password' => 'password',
     ]);
 
-    $this->get(route('two-factor.login'))
+    $this->get(tenantRoute($user, 'two-factor.login'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('auth/TwoFactorChallenge'),

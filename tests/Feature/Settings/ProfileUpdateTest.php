@@ -7,7 +7,7 @@ test('profile page is displayed', function () {
 
     $response = $this
         ->actingAs($user)
-        ->get(route('profile.edit'));
+        ->get(tenantRoute($user, 'profile.edit'));
 
     $response->assertOk();
 });
@@ -17,14 +17,14 @@ test('profile information can be updated', function () {
 
     $response = $this
         ->actingAs($user)
-        ->patch(route('profile.update'), [
+        ->patch(tenantRoute($user, 'profile.update'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('profile.edit'));
+        ->assertRedirect(tenantRoute($user, 'profile.edit'));
 
     $user->refresh();
 
@@ -38,7 +38,7 @@ test('email is stored in lowercase so the user can still log in', function () {
 
     $this
         ->actingAs($user)
-        ->patch(route('profile.update'), [
+        ->patch(tenantRoute($user, 'profile.update'), [
             'name' => 'Test User',
             'email' => 'Test@Example.com',
         ])
@@ -46,9 +46,9 @@ test('email is stored in lowercase so the user can still log in', function () {
 
     expect($user->refresh()->email)->toBe('test@example.com');
 
-    $this->post(route('logout'));
+    $this->post(tenantRoute($user, 'logout'));
 
-    $this->post(route('login.store'), [
+    $this->post(tenantRoute($user, 'login.store'), [
         'email' => 'Test@Example.com',
         'password' => 'password',
     ]);
@@ -56,22 +56,35 @@ test('email is stored in lowercase so the user can still log in', function () {
     $this->assertAuthenticatedAs($user);
 });
 
-test('email must be unique regardless of case', function () {
-    User::factory()->create(['email' => 'taken@example.com']);
-
+test('email must be unique within the tenant regardless of case', function () {
     $user = User::factory()->create();
+    User::factory()->for($user->tenant)->create(['email' => 'taken@example.com']);
 
     $response = $this
         ->actingAs($user)
-        ->from(route('profile.edit'))
-        ->patch(route('profile.update'), [
+        ->from(tenantRoute($user, 'profile.edit'))
+        ->patch(tenantRoute($user, 'profile.update'), [
             'name' => 'Test User',
             'email' => 'Taken@Example.com',
         ]);
 
     $response
         ->assertSessionHasErrors('email')
-        ->assertRedirect(route('profile.edit'));
+        ->assertRedirect(tenantRoute($user, 'profile.edit'));
+});
+
+test('the same email may be used in another tenant', function () {
+    User::factory()->create(['email' => 'shared@example.com']);
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->patch(tenantRoute($user, 'profile.update'), [
+            'name' => 'Test User',
+            'email' => 'shared@example.com',
+        ])
+        ->assertSessionHasNoErrors();
+
+    expect($user->refresh()->email)->toBe('shared@example.com');
 });
 
 test('email verification status is unchanged when the email address is unchanged', function () {
@@ -79,14 +92,14 @@ test('email verification status is unchanged when the email address is unchanged
 
     $response = $this
         ->actingAs($user)
-        ->patch(route('profile.update'), [
+        ->patch(tenantRoute($user, 'profile.update'), [
             'name' => 'Test User',
             'email' => $user->email,
         ]);
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('profile.edit'));
+        ->assertRedirect(tenantRoute($user, 'profile.edit'));
 
     expect($user->refresh()->email_verified_at)->not->toBeNull();
 });
@@ -96,13 +109,13 @@ test('user can delete their account', function () {
 
     $response = $this
         ->actingAs($user)
-        ->delete(route('profile.destroy'), [
+        ->delete(tenantRoute($user, 'profile.destroy'), [
             'password' => 'password',
         ]);
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('home'));
+        ->assertRedirect(tenantRoute($user, 'home'));
 
     $this->assertGuest();
     expect($user->fresh())->toBeNull();
@@ -113,14 +126,24 @@ test('correct password must be provided to delete account', function () {
 
     $response = $this
         ->actingAs($user)
-        ->from(route('profile.edit'))
-        ->delete(route('profile.destroy'), [
+        ->from(tenantRoute($user, 'profile.edit'))
+        ->delete(tenantRoute($user, 'profile.destroy'), [
             'password' => 'wrong-password',
         ]);
 
     $response
         ->assertSessionHasErrors('password')
-        ->assertRedirect(route('profile.edit'));
+        ->assertRedirect(tenantRoute($user, 'profile.edit'));
 
     expect($user->fresh())->not->toBeNull();
+});
+
+test('the owner cannot delete their account', function () {
+    $owner = User::factory()->owner()->create();
+
+    $this->actingAs($owner)
+        ->delete(tenantRoute($owner, 'profile.destroy'), ['password' => 'password'])
+        ->assertForbidden();
+
+    expect($owner->fresh())->not->toBeNull();
 });

@@ -2,7 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\Role;
+use App\Models\Tenant;
 use App\Models\User;
+use App\Support\CurrentTenant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -25,6 +28,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'tenant_id' => app(CurrentTenant::class)->id() ?? Tenant::factory(),
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
@@ -34,6 +38,43 @@ class UserFactory extends Factory
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
         ];
+    }
+
+    /**
+     * A platform operator, outside any tenant.
+     */
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'tenant_id' => null,
+            'is_super_admin' => true,
+        ]);
+    }
+
+    public function owner(): static
+    {
+        return $this->withRole(Role::Owner);
+    }
+
+    public function admin(): static
+    {
+        return $this->withRole(Role::Admin);
+    }
+
+    public function staff(): static
+    {
+        return $this->withRole(Role::Staff);
+    }
+
+    /**
+     * Grant the role inside the user's own tenant.
+     */
+    public function withRole(Role $role): static
+    {
+        return $this->afterCreating(function (User $user) use ($role): void {
+            app(CurrentTenant::class)->runAs($user->tenant, fn () => $user->assignRole($role));
+            $user->unsetRelation('roles');
+        });
     }
 
     /**

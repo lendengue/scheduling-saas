@@ -1,12 +1,13 @@
 <?php
 
+use App\Models\Tenant;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('confirm password screen can be rendered', function () {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->get(route('password.confirm'));
+    $response = $this->actingAs($user)->get(tenantRoute($user, 'password.confirm'));
 
     $response->assertOk();
 
@@ -16,7 +17,9 @@ test('confirm password screen can be rendered', function () {
 });
 
 test('password confirmation requires authentication', function () {
-    $response = $this->get(route('password.confirm'));
+    $tenant = Tenant::factory()->create();
 
-    $response->assertRedirect(route('login'));
+    $response = $this->get(tenantRoute($tenant, 'password.confirm'));
+
+    $response->assertRedirect(tenantRoute($tenant, 'login'));
 });

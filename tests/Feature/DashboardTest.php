@@ -1,16 +1,25 @@
 <?php
 
+use App\Models\Tenant;
 use App\Models\User;
 
-test('guests are redirected to the login page', function () {
-    $response = $this->get(route('dashboard'));
-    $response->assertRedirect(route('login'));
+test('guests are redirected to the tenant login page', function () {
+    $tenant = Tenant::factory()->create();
+
+    $this->get(tenantRoute($tenant, 'dashboard'))
+        ->assertRedirect(tenantRoute($tenant, 'login'));
 });
 
-test('authenticated users can visit the dashboard', function () {
-    $user = User::factory()->create();
-    $this->actingAs($user);
+test('members can visit the dashboard', function () {
+    $user = User::factory()->owner()->create();
 
-    $response = $this->get(route('dashboard'));
-    $response->assertOk();
+    $this->actingAs($user)
+        ->get(tenantRoute($user, 'dashboard'))
+        ->assertOk();
+});
+
+test('the tenant root redirects to the panel', function () {
+    $tenant = Tenant::factory()->create();
+
+    $this->get($tenant->url('/'))->assertRedirect(tenantRoute($tenant, 'dashboard'));
 });
