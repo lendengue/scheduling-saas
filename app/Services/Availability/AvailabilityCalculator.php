@@ -71,7 +71,7 @@ class AvailabilityCalculator
      *
      * @return list<string> dates as Y-m-d
      */
-    public function availableDaysInMonth(Service $service, ?StaffProfile $staff, int $year, int $month): array
+    public function availableDaysInMonth(Service $service, ?StaffProfile $staff, int $year, int $month, ?string $ignoringAppointmentId = null): array
     {
         $timezone = $this->currentTenant->getOrFail()->timezone;
         $day = CarbonImmutable::createFromFormat('!Y-n-j', "{$year}-{$month}-1", $timezone)
@@ -79,7 +79,7 @@ class AvailabilityCalculator
         $days = [];
 
         for (; $day->month === $month; $day = $day->addDay()) {
-            if ($this->slotsFor($service, $staff, $day)->isNotEmpty()) {
+            if ($this->slotsFor($service, $staff, $day, $ignoringAppointmentId)->isNotEmpty()) {
                 $days[] = $day->format('Y-m-d');
             }
         }

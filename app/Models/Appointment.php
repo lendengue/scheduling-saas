@@ -120,6 +120,14 @@ class Appointment extends Model
     }
 
     /**
+     * Absolute link that lets the customer cancel or reschedule.
+     */
+    public function manageUrl(string $plainToken): string
+    {
+        return $this->tenant->url(route('appointments.manage', ['appointment' => $this->id, 'token' => $plainToken], absolute: false));
+    }
+
+    /**
      * End of the service itself, without the buffer.
      */
     public function serviceEndsAt(): CarbonImmutable

@@ -46,6 +46,7 @@ class BookingController extends Controller
             'appointment' => AppointmentSummary::from($appointment, $tenant),
             'isPending' => $appointment->status === AppointmentStatus::Pending,
             'calendarUrl' => route('booking.calendar', ['appointment' => $appointment->id, 'token' => $token], absolute: false),
+            'manageUrl' => route('appointments.manage', ['appointment' => $appointment->id, 'token' => $token], absolute: false),
         ]);
     }
 }

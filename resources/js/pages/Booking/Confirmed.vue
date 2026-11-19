@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { CalendarPlus, CircleCheck, Hourglass } from '@lucide/vue';
 import BookingShell from '@/components/booking/BookingShell.vue';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ defineProps<{
     appointment: AppointmentSummary;
     isPending: boolean;
     calendarUrl: string;
+    manageUrl: string;
 }>();
 </script>
 
@@ -68,6 +69,11 @@ defineProps<{
                     <a :href="calendarUrl" data-test="add-to-calendar">
                         <CalendarPlus /> Add to calendar
                     </a>
+                </Button>
+                <Button as-child variant="ghost">
+                    <Link :href="manageUrl" data-test="manage-booking">
+                        Change or cancel
+                    </Link>
                 </Button>
             </div>
         </div>

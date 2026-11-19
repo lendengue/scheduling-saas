@@ -4,6 +4,7 @@ use App\Http\Controllers\Booking\AppointmentCalendarController;
 use App\Http\Controllers\Booking\AvailabilityController;
 use App\Http\Controllers\Booking\BookingController;
 use App\Http\Controllers\Booking\BookingPageController;
+use App\Http\Controllers\Booking\ManageAppointmentController;
 use App\Http\Controllers\Tenant\AcceptInvitationController;
 use App\Http\Controllers\Tenant\InvitationController;
 use App\Http\Controllers\Tenant\LoginHandoffController;
@@ -38,6 +39,14 @@ Route::get('book/confirmed/{appointment}', [BookingController::class, 'confirmed
 Route::get('appointments/{appointment}/calendar.ics', AppointmentCalendarController::class)
     ->middleware('throttle:30,1')
     ->name('booking.calendar');
+
+Route::prefix('appointments/{appointment}')->middleware('throttle:60,1')->group(function () {
+    Route::get('manage', [ManageAppointmentController::class, 'show'])->name('appointments.manage');
+    Route::get('manage/days', [ManageAppointmentController::class, 'days'])->name('appointments.manage.days');
+    Route::get('manage/slots', [ManageAppointmentController::class, 'slots'])->name('appointments.manage.slots');
+    Route::post('cancel', [ManageAppointmentController::class, 'cancel'])->name('appointments.cancel');
+    Route::post('reschedule', [ManageAppointmentController::class, 'reschedule'])->name('appointments.reschedule');
+});
 
 Route::get('auth/handoff/{token}', LoginHandoffController::class)
     ->middleware('throttle:10,1')

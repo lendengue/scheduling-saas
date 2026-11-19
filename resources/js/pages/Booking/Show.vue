@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { ArrowLeft, Clock, UserRound, Users } from '@lucide/vue';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import BookingShell from '@/components/booking/BookingShell.vue';
-import MonthCalendar from '@/components/booking/MonthCalendar.vue';
+import SlotPicker from '@/components/booking/SlotPicker.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,14 +36,8 @@ type Step = 'service' | 'staff' | 'time' | 'details';
 const step = ref<Step>('service');
 const service = ref<PublicService | null>(null);
 const staffChoice = ref<number | 'any'>('any');
-const month = ref(props.today.slice(0, 7));
-const availableDays = ref<string[]>([]);
 const date = ref<string | null>(null);
-const slots = ref<PublicSlot[]>([]);
 const slot = ref<PublicSlot | null>(null);
-const loadingDays = ref(false);
-const loadingSlots = ref(false);
-const loadError = ref<string | null>(null);
 
 const eligibleStaff = computed(() =>
     service.value
@@ -67,59 +61,9 @@ const query = (extra: Record<string, string>) => ({
     ...extra,
 });
 
-const getJson = async <T,>(url: string): Promise<T> => {
-    const response = await fetch(url, {
-        headers: { Accept: 'application/json' },
-    });
-
-    if (!response.ok) {
-        throw new Error(String(response.status));
-    }
-
-    return (await response.json()) as T;
-};
-
-const loadDays = async () => {
-    loadingDays.value = true;
-    loadError.value = null;
-
-    try {
-        const data = await getJson<{ days: string[] }>(
-            daysRoute.url({ query: query({ month: month.value }) }),
-        );
-        availableDays.value = data.days;
-    } catch {
-        loadError.value = 'Could not load availability. Please try again.';
-    } finally {
-        loadingDays.value = false;
-    }
-};
-
-const loadSlots = async () => {
-    if (!date.value) {
-        return;
-    }
-
-    loadingSlots.value = true;
-    slot.value = null;
-
-    try {
-        const data = await getJson<{ slots: PublicSlot[] }>(
-            slotsRoute.url({ query: query({ date: date.value }) }),
-        );
-        slots.value = data.slots;
-    } catch {
-        loadError.value = 'Could not load times. Please try again.';
-    } finally {
-        loadingSlots.value = false;
-    }
-};
-
-watch(month, () => {
-    if (step.value === 'time') {
-        void loadDays();
-    }
-});
+const daysUrl = (month: string) => daysRoute.url({ query: query({ month }) });
+const slotsUrl = (day: string) =>
+    slotsRoute.url({ query: query({ date: day }) });
 
 const chooseService = (chosen: PublicService) => {
     service.value = chosen;
@@ -135,20 +79,13 @@ const chooseService = (chosen: PublicService) => {
 const chooseStaff = (choice: number | 'any') => {
     staffChoice.value = choice;
     date.value = null;
-    slots.value = [];
     slot.value = null;
-    month.value = props.today.slice(0, 7);
     step.value = 'time';
-    void loadDays();
 };
 
-const chooseDate = (chosen: string) => {
-    date.value = chosen;
-    void loadSlots();
-};
-
-const chooseSlot = (chosen: PublicSlot) => {
+const chooseSlot = (chosen: PublicSlot, day: string) => {
     slot.value = chosen;
+    date.value = day;
     step.value = 'details';
 };
 
@@ -189,8 +126,6 @@ const submit = () => {
             if (errors.starts_at) {
                 // Someone else took the time: pick another one.
                 step.value = 'time';
-                void loadDays();
-                void loadSlots();
             }
         },
     });
@@ -338,52 +273,13 @@ const formatDate = (value: string) =>
                 >
                     {{ slotTakenError }}
                 </p>
-                <p v-if="loadError" class="text-sm text-destructive">
-                    {{ loadError }}
-                </p>
-
-                <MonthCalendar
-                    v-model:month="month"
-                    :available-days="availableDays"
-                    :selected="date"
-                    :min-month="today.slice(0, 7)"
-                    :max-month="maxDate.slice(0, 7)"
-                    :loading="loadingDays"
-                    @select="chooseDate"
+                <SlotPicker
+                    :days-url="daysUrl"
+                    :slots-url="slotsUrl"
+                    :today="today"
+                    :max-date="maxDate"
+                    @pick="chooseSlot"
                 />
-
-                <p
-                    v-if="!loadingDays && !availableDays.length"
-                    class="text-sm text-muted-foreground"
-                >
-                    No free times this month. Try the next one.
-                </p>
-
-                <section v-if="date" class="flex flex-col gap-3">
-                    <h2 class="text-sm font-medium capitalize">
-                        {{ formatDate(date) }}
-                    </h2>
-                    <div v-if="loadingSlots" class="flex justify-center p-4">
-                        <Spinner />
-                    </div>
-                    <p
-                        v-else-if="!slots.length"
-                        class="text-sm text-muted-foreground"
-                    >
-                        No free times left on this day.
-                    </p>
-                    <div v-else class="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                        <Button
-                            v-for="item in slots"
-                            :key="item.starts_at"
-                            variant="outline"
-                            :data-test="`slot-${item.label}`"
-                            @click="chooseSlot(item)"
-                        >
-                            {{ item.label }}
-                        </Button>
-                    </div>
-                </section>
             </div>
 
             <!-- 4. Details -->
