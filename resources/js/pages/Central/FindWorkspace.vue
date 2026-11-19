@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Form, Head, usePage } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
+import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { register } from '@/routes';
 import { find } from '@/routes/workspace';
 
 defineOptions({
@@ -56,5 +58,9 @@ const appDomain = usePage().props.appDomain;
             Continue
         </Button>
 
+        <div class="text-center text-sm text-muted-foreground">
+            New to scheduling-saas?
+            <TextLink :href="register()">Create your business</TextLink>
+        </div>
     </Form>
 </template>

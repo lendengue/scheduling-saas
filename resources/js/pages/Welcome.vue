@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { BellRing, CalendarCheck, ShieldCheck } from '@lucide/vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { Button } from '@/components/ui/button';
-import { login } from '@/routes';
+import { login, register } from '@/routes';
 
 const features = [
     {
@@ -42,6 +42,9 @@ const features = [
                 <Button variant="ghost" as-child>
                     <Link :href="login()">Log in</Link>
                 </Button>
+                <Button as-child>
+                    <Link :href="register()">Get started</Link>
+                </Button>
             </nav>
         </header>
 
@@ -60,6 +63,11 @@ const features = [
                     calendar and automatic reminders.
                 </p>
                 <div class="flex flex-wrap gap-3">
+                    <Button size="lg" as-child>
+                        <Link :href="register()"
+                            >Start your 14-day free trial</Link
+                        >
+                    </Button>
                     <Button size="lg" variant="outline" as-child>
                         <Link :href="login()">Find your workspace</Link>
                     </Button>

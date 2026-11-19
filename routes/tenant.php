@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Tenant\LoginHandoffController;
+use App\Http\Controllers\Tenant\OnboardingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -8,8 +10,13 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+Route::get('auth/handoff/{token}', LoginHandoffController::class)
+    ->middleware('throttle:10,1')
+    ->name('login.handoff');
+
 Route::middleware(['auth', 'tenant.member'])->prefix('app')->group(function () {
     Route::inertia('/', 'Tenant/Dashboard')->name('dashboard');
+    Route::get('onboarding', OnboardingController::class)->name('onboarding');
 
     require __DIR__.'/settings.php';
 });
