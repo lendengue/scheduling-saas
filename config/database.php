@@ -96,6 +96,8 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
+            // Dates are stored in UTC (timestamptz columns are read back in UTC).
+            'timezone' => 'UTC',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 

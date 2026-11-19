@@ -5,6 +5,7 @@ namespace App\Actions\Tenants;
 use App\Data\Tenants\CreatedTenant;
 use App\Data\Tenants\NewTenantData;
 use App\Enums\Role;
+use App\Models\StaffProfile;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Support\CurrentTenant;
@@ -39,6 +40,9 @@ class CreateTenant
                 ]);
 
                 $owner->assignRole(Role::Owner);
+
+                // Most small businesses start with the owner taking the bookings.
+                StaffProfile::forUser($owner, bookable: true);
 
                 return $owner;
             });

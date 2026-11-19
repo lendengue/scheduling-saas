@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Services\ReorderServicesRequest;
 use App\Http\Requests\Services\ServiceRequest;
 use App\Models\Service;
+use App\Models\StaffProfile;
 use App\Support\CurrentTenant;
 use App\Support\Money;
 use Illuminate\Http\RedirectResponse;
@@ -24,7 +25,7 @@ class ServiceController extends Controller
         $tenant = $currentTenant->getOrFail();
 
         return Inertia::render('Tenant/Services/Index', [
-            'services' => Service::query()->ordered()->get()->map(fn (Service $service) => [
+            'services' => Service::query()->with('staffProfiles:id')->ordered()->get()->map(fn (Service $service) => [
                 'id' => $service->id,
                 'name' => $service->name,
                 'description' => $service->description,
@@ -33,14 +34,23 @@ class ServiceController extends Controller
                 'price' => number_format($service->price_cents / 100, 2, '.', ''),
                 'price_formatted' => Money::format($service->price_cents, $tenant),
                 'is_active' => $service->is_active,
+                'staff_profile_ids' => $service->staffProfiles->modelKeys(),
             ]),
-            'staff' => [],
+            'staff' => StaffProfile::query()->bookable()->with('user:id,name')->get()
+                ->map(fn (StaffProfile $profile) => [
+                    'id' => $profile->id,
+                    'name' => $profile->user->name,
+                    'color' => $profile->color,
+                ])
+                ->sortBy('name')
+                ->values(),
         ]);
     }
 
     public function store(ServiceRequest $request, CreateService $create): RedirectResponse
     {
         $service = $create->handle($request->serviceAttributes());
+        $service->staffProfiles()->sync($request->staffProfileIds());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __(':name created.', ['name' => $service->name])]);
 
@@ -50,6 +60,7 @@ class ServiceController extends Controller
     public function update(ServiceRequest $request, Service $service): RedirectResponse
     {
         $service->update($request->serviceAttributes());
+        $service->staffProfiles()->sync($request->staffProfileIds());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __(':name updated.', ['name' => $service->name])]);
 

@@ -5,6 +5,7 @@ import InviteMemberForm from '@/components/InviteMemberForm.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { index } from '@/routes/team';
+import { show } from '@/routes/team/members';
 import { destroy } from '@/routes/team/invitations';
 import type { RoleOption } from '@/types';
 
@@ -13,6 +14,8 @@ type Member = {
     name: string;
     email: string;
     role: string | null;
+    is_bookable: boolean;
+    color: string | null;
 };
 
 type PendingInvitation = {
@@ -63,17 +66,33 @@ const formatDate = (iso: string): string =>
                     :key="member.id"
                     class="flex items-center justify-between gap-4 px-4 py-3"
                 >
-                    <div class="min-w-0">
-                        <p class="truncate text-sm font-medium">
-                            {{ member.name }}
-                        </p>
-                        <p class="truncate text-sm text-muted-foreground">
-                            {{ member.email }}
-                        </p>
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span
+                            class="size-3 shrink-0 rounded-full"
+                            :style="{
+                                backgroundColor: member.color ?? 'transparent',
+                            }"
+                        />
+                        <div class="min-w-0">
+                            <Link
+                                :href="show(member.id)"
+                                class="block truncate text-sm font-medium hover:underline"
+                            >
+                                {{ member.name }}
+                            </Link>
+                            <p class="truncate text-sm text-muted-foreground">
+                                {{ member.email }}
+                            </p>
+                        </div>
                     </div>
-                    <Badge v-if="member.role" variant="secondary">
-                        {{ member.role }}
-                    </Badge>
+                    <div class="flex items-center gap-2">
+                        <Badge v-if="member.is_bookable" variant="outline">
+                            Takes bookings
+                        </Badge>
+                        <Badge v-if="member.role" variant="secondary">
+                            {{ member.role }}
+                        </Badge>
+                    </div>
                 </li>
             </ul>
         </section>

@@ -15,3 +15,16 @@ export type StaffOption = {
     name: string;
     color: string;
 };
+
+export type WorkingInterval = {
+    weekday: number;
+    starts_at: string;
+    ends_at: string;
+};
+
+export type TimeOffItem = {
+    id: number;
+    starts_at: string;
+    ends_at: string;
+    reason: string | null;
+};

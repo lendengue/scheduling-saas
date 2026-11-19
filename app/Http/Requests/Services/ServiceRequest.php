@@ -3,8 +3,11 @@
 namespace App\Http\Requests\Services;
 
 use App\Models\Service;
+use App\Models\StaffProfile;
+use App\Support\CurrentTenant;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * Creating and updating a service share the same rules. The price comes in
@@ -42,6 +45,11 @@ class ServiceRequest extends FormRequest
             'buffer_after_minutes' => ['required', 'integer', 'between:0,120'],
             'price' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:100000'],
             'is_active' => ['boolean'],
+            'staff_profile_ids' => ['array'],
+            'staff_profile_ids.*' => [
+                'integer', 'distinct',
+                Rule::exists(StaffProfile::class, 'id')->where('tenant_id', app(CurrentTenant::class)->id()),
+            ],
         ];
     }
 
@@ -62,5 +70,13 @@ class ServiceRequest extends FormRequest
             'price_cents' => (int) round((float) $this->input('price') * 100),
             'is_active' => $this->boolean('is_active'),
         ];
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function staffProfileIds(): array
+    {
+        return array_values(array_map(intval(...), (array) $this->input('staff_profile_ids', [])));
     }
 }

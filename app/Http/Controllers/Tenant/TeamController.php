@@ -18,7 +18,7 @@ class TeamController extends Controller
 
         return Inertia::render('Tenant/Team/Index', [
             'members' => User::query()
-                ->with('roles')
+                ->with(['roles', 'staffProfile'])
                 ->orderBy('name')
                 ->get()
                 ->map(fn (User $user) => [
@@ -26,6 +26,8 @@ class TeamController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->tenantRole()?->label(),
+                    'is_bookable' => $user->staffProfile->is_bookable ?? false,
+                    'color' => $user->staffProfile?->color,
                 ]),
             'invitations' => Invitation::query()
                 ->pending()

@@ -6,6 +6,9 @@ use App\Http\Controllers\Tenant\LoginHandoffController;
 use App\Http\Controllers\Tenant\OnboardingController;
 use App\Http\Controllers\Tenant\ServiceController;
 use App\Http\Controllers\Tenant\TeamController;
+use App\Http\Controllers\Tenant\TeamMemberController;
+use App\Http\Controllers\Tenant\TimeOffController;
+use App\Http\Controllers\Tenant\WorkingHoursController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,6 +37,12 @@ Route::middleware(['auth', 'tenant.member'])->prefix('app')->group(function () {
     Route::get('team', [TeamController::class, 'index'])->name('team.index');
     Route::post('team/invitations', [InvitationController::class, 'store'])->name('team.invitations.store');
     Route::delete('team/invitations/{invitation}', [InvitationController::class, 'destroy'])->name('team.invitations.destroy');
+
+    Route::get('team/{member}', [TeamMemberController::class, 'show'])->name('team.members.show');
+    Route::put('team/{member}', [TeamMemberController::class, 'update'])->name('team.members.update');
+    Route::put('team/{member}/working-hours', [WorkingHoursController::class, 'update'])->name('team.members.working-hours.update');
+    Route::post('team/{member}/time-offs', [TimeOffController::class, 'store'])->name('team.members.time-offs.store');
+    Route::delete('team/{member}/time-offs/{timeOff}', [TimeOffController::class, 'destroy'])->name('team.members.time-offs.destroy');
 
     Route::put('services/order', [ServiceController::class, 'reorder'])->name('services.reorder');
     Route::resource('services', ServiceController::class)->only(['index', 'store', 'update', 'destroy']);

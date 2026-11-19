@@ -2,7 +2,9 @@
 
 namespace App\Actions\Team;
 
+use App\Enums\Role;
 use App\Models\Invitation;
+use App\Models\StaffProfile;
 use App\Models\User;
 use App\Support\SecureToken;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +44,9 @@ class AcceptInvitation
             ]);
             $user->forceFill(['email_verified_at' => now()])->save();
             $user->assignRole($invitation->role);
+
+            // Staff members serve customers; admins opt in on their profile.
+            StaffProfile::forUser($user, bookable: $invitation->role === Role::Staff);
 
             $invitation->forceFill(['accepted_at' => now()])->save();
 

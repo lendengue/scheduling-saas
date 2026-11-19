@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, Scissors, Users } from '@lucide/vue';
+import { CalendarClock, LayoutGrid, Scissors, Users } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -17,6 +17,7 @@ import {
 import { dashboard } from '@/routes';
 import { index as services } from '@/routes/services';
 import { index as team } from '@/routes/team';
+import { show as member } from '@/routes/team/members';
 import type { NavItem } from '@/types';
 
 const page = usePage();
@@ -32,7 +33,13 @@ const mainNavItems = computed<NavItem[]>(() => [
         : []),
     ...(page.props.auth.can.manageTeam
         ? [{ title: 'Team', href: team(), icon: Users }]
-        : []),
+        : [
+              {
+                  title: 'My availability',
+                  href: member(page.props.auth.user.id),
+                  icon: CalendarClock,
+              },
+          ]),
 ]);
 </script>
 

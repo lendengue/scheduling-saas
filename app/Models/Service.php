@@ -7,8 +7,10 @@ use Database\Factories\ServiceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -31,6 +33,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Tenant $tenant
+ * @property-read Collection<int, StaffProfile> $staffProfiles
  */
 #[Fillable(['name', 'description', 'duration_minutes', 'buffer_after_minutes', 'price_cents', 'is_active'])]
 class Service extends Model
@@ -70,6 +73,16 @@ class Service extends Model
     public function blockedMinutes(): int
     {
         return $this->duration_minutes + $this->buffer_after_minutes;
+    }
+
+    /**
+     * Professionals who perform this service.
+     *
+     * @return BelongsToMany<StaffProfile, $this>
+     */
+    public function staffProfiles(): BelongsToMany
+    {
+        return $this->belongsToMany(StaffProfile::class, 'service_staff');
     }
 
     /**
