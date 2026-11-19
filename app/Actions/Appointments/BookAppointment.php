@@ -6,6 +6,7 @@ use App\Data\Appointments\BookedAppointment;
 use App\Data\Appointments\BookingData;
 use App\Enums\AppointmentStatus;
 use App\Enums\BookingChannel;
+use App\Events\AppointmentBooked;
 use App\Exceptions\SlotNoLongerAvailable;
 use App\Models\Appointment;
 use App\Models\Customer;
@@ -70,6 +71,8 @@ class BookAppointment
         } catch (QueryException $exception) {
             throw self::isOverlap($exception) ? new SlotNoLongerAvailable($exception) : $exception;
         }
+
+        AppointmentBooked::dispatch($appointment, $token->plain);
 
         return new BookedAppointment($appointment, $token->plain);
     }

@@ -3,6 +3,7 @@
 namespace App\Actions\Appointments;
 
 use App\Enums\AppointmentStatus;
+use App\Events\AppointmentCancelled;
 use App\Exceptions\AppointmentCannotBeChanged;
 use App\Models\Appointment;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class CancelAppointment
      */
     public function handle(Appointment $appointment, ?string $reason, bool $byCustomer): Appointment
     {
-        return DB::transaction(function () use ($appointment, $reason, $byCustomer): Appointment {
+        $appointment = DB::transaction(function () use ($appointment, $reason, $byCustomer): Appointment {
             $appointment = Appointment::query()->lockForUpdate()->findOrFail($appointment->id);
 
             if ($byCustomer) {
@@ -34,5 +35,9 @@ class CancelAppointment
 
             return $appointment;
         });
+
+        AppointmentCancelled::dispatch($appointment, $byCustomer);
+
+        return $appointment;
     }
 }

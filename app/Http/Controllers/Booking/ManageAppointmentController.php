@@ -66,7 +66,7 @@ class ManageAppointmentController extends Controller
         $token = $this->authorizeToken($request, $appointment);
         $validated = $request->validate(['starts_at' => ['required', 'date']]);
 
-        $reschedule->handle($appointment, CarbonImmutable::parse($validated['starts_at']), BookingChannel::Public);
+        $reschedule->handle($appointment, CarbonImmutable::parse($validated['starts_at']), BookingChannel::Public, manageToken: $token);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Your appointment was rescheduled.')]);
 
