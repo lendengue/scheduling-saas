@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\Role;
+use App\Models\Invitation;
 use App\Support\CurrentTenant;
 use App\Support\Tenancy\TenantDomain;
 use Illuminate\Http\Request;
@@ -54,7 +54,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
                 'role' => $user?->tenantRole()?->value,
                 'can' => [
-                    'manageTeam' => $user?->hasTenantRole(Role::Owner, Role::Admin) ?? false,
+                    'manageTeam' => $user?->can('viewAny', Invitation::class) ?? false,
                 ],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

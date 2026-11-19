@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { CalendarClock, Scissors } from '@lucide/vue';
+import { CalendarClock, Check, Scissors, Users } from '@lucide/vue';
+import InviteMemberForm from '@/components/InviteMemberForm.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { dashboard, onboarding } from '@/routes';
+import type { RoleOption } from '@/types';
+
+defineProps<{
+    canInvite: boolean;
+    roles: RoleOption[];
+    invitations: { id: number; email: string; role: string }[];
+}>();
 
 defineOptions({
     layout: {
@@ -23,7 +31,7 @@ const tenantName = usePage().props.tenant?.name;
                 Welcome to scheduling-saas, {{ tenantName }}!
             </h1>
             <p class="text-muted-foreground">
-                Two steps and your booking page is ready for customers.
+                Three steps and your booking page is ready for customers.
             </p>
         </header>
 
@@ -51,6 +59,35 @@ const tenantName = usePage().props.tenant?.name;
                     <p class="text-sm text-muted-foreground">
                         When each professional is available for bookings.
                     </p>
+                </div>
+            </li>
+
+            <li class="flex gap-4 rounded-lg border p-4">
+                <Users class="mt-0.5 size-5 shrink-0" />
+                <div class="flex flex-1 flex-col gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h2 class="font-medium">3. Invite your team</h2>
+                            <Badge variant="secondary">Optional</Badge>
+                        </div>
+                        <p class="text-sm text-muted-foreground">
+                            Admins help you manage the business; staff manage
+                            their own schedule.
+                        </p>
+                    </div>
+
+                    <InviteMemberForm v-if="canInvite" :roles="roles" />
+
+                    <ul v-if="invitations.length" class="space-y-1 text-sm">
+                        <li
+                            v-for="invitation in invitations"
+                            :key="invitation.id"
+                            class="flex items-center gap-2 text-muted-foreground"
+                        >
+                            <Check class="size-4 text-green-600" />
+                            {{ invitation.email }} ({{ invitation.role }})
+                        </li>
+                    </ul>
                 </div>
             </li>
         </ol>

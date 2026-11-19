@@ -57,7 +57,7 @@ test('a business can register and lands on its onboarding, logged in', function 
 
     $this->get('http://acme.scheduling-saas.test/app/onboarding')
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('Tenant/Onboarding'));
+        ->assertInertia(fn (Assert $page) => $page->component('Tenant/Onboarding')->where('canInvite', true));
 });
 
 test('inertia requests receive an external redirect to the subdomain', function () {

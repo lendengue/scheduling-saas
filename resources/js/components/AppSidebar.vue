@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { LayoutGrid } from '@lucide/vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { LayoutGrid, Users } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,7 +15,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as team } from '@/routes/team';
 import type { NavItem } from '@/types';
+
+const page = usePage();
 
 const mainNavItems = computed<NavItem[]>(() => [
     {
@@ -23,6 +26,9 @@ const mainNavItems = computed<NavItem[]>(() => [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    ...(page.props.auth.can.manageTeam
+        ? [{ title: 'Team', href: team(), icon: Users }]
+        : []),
 ]);
 </script>
 
