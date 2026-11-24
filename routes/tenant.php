@@ -6,6 +6,8 @@ use App\Http\Controllers\Booking\BookingController;
 use App\Http\Controllers\Booking\BookingPageController;
 use App\Http\Controllers\Booking\ManageAppointmentController;
 use App\Http\Controllers\Tenant\AcceptInvitationController;
+use App\Http\Controllers\Tenant\AgendaController;
+use App\Http\Controllers\Tenant\AppointmentController;
 use App\Http\Controllers\Tenant\InvitationController;
 use App\Http\Controllers\Tenant\LoginHandoffController;
 use App\Http\Controllers\Tenant\OnboardingController;
@@ -64,6 +66,13 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'tenant.member'])->prefix('app')->group(function () {
     Route::inertia('/', 'Tenant/Dashboard')->name('dashboard');
     Route::get('onboarding', OnboardingController::class)->name('onboarding');
+
+    Route::get('agenda', [AgendaController::class, 'index'])->name('agenda');
+    Route::get('agenda/events', [AgendaController::class, 'events'])->name('agenda.events');
+    Route::post('appointments', [AppointmentController::class, 'store'])->name('panel.appointments.store');
+    Route::put('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('panel.appointments.status');
+    Route::put('appointments/{appointment}/reschedule', [AppointmentController::class, 'reschedule'])->name('panel.appointments.reschedule');
+    Route::post('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->name('panel.appointments.cancel');
 
     Route::get('team', [TeamController::class, 'index'])->name('team.index');
     Route::post('team/invitations', [InvitationController::class, 'store'])->name('team.invitations.store');

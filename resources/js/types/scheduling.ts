@@ -70,3 +70,53 @@ export type AppointmentSummary = {
     status_label: string;
     starts_at: string;
 };
+
+export type AgendaBusinessHours = {
+    daysOfWeek: number[];
+    startTime: string;
+    endTime: string;
+};
+
+export type AgendaStaff = {
+    id: number;
+    name: string;
+    color: string;
+    business_hours: AgendaBusinessHours[];
+};
+
+export type AgendaService = {
+    id: number;
+    name: string;
+    duration_minutes: number;
+    buffer_after_minutes: number;
+    is_active: boolean;
+};
+
+export type AppointmentStatus =
+    'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
+
+/** extendedProps of an appointment event in the agenda feed. */
+export type AgendaAppointment = {
+    kind: 'appointment';
+    status: AppointmentStatus;
+    status_label: string;
+    service: string;
+    staff_profile_id: number;
+    staff: string;
+    customer: { name: string; email: string; phone: string | null };
+    service_ends_at: string;
+    duration_minutes: number;
+    price: string;
+    notes: string | null;
+    cancellation_reason: string | null;
+    has_started: boolean;
+    can: { update: boolean; confirm: boolean };
+};
+
+/** An appointment selected in the agenda, with its times in the business timezone. */
+export type SelectedAppointment = AgendaAppointment & {
+    id: string;
+    /** "YYYY-MM-DDTHH:mm", wall-clock time of the business. */
+    local_start: string;
+    local_service_end: string;
+};
