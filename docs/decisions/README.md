@@ -15,6 +15,11 @@ to change a decision, write a new ADR that supersedes the old one.
 | [0007](0007-tenant-routing-and-cross-domain-login.md) | Tenant routing, sessions and cross-domain login | Accepted |
 | [0008](0008-tenant-context-in-queued-work.md) | Tenant context in queued work | Accepted |
 | [0009](0009-roles-and-invitations.md) | Roles and team invitations | Accepted |
+| [0010](0010-availability-engine.md) | Availability engine and appointment snapshots | Accepted |
+| [0011](0011-public-booking-and-management-link.md) | Public booking, abuse protection and the management link | Accepted |
+| [0012](0012-timestamptz-columns.md) | timestamptz columns and timezone-safe writes | Accepted |
+| [0013](0013-team-agenda.md) | The team agenda | Accepted |
+| [0014](0014-onboarding-and-demo-data.md) | Onboarding wizard and demo data | Accepted |
 
 ## Template
 
